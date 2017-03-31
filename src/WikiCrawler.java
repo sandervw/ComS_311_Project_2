@@ -1,3 +1,9 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 
 /**
@@ -45,7 +51,22 @@ public class WikiCrawler {
 	 * the web graph only over those pages. and writes the graph to the le fileName.
 	 */
 	public void crawl(){
-		
+		URL url;
+		try {
+			url = new URL(BASE_URL+seedURL);
+			InputStream is = url.openStream();
+			BufferedReader br = new BufferedReader(new InputStreamReader(is));
+			String line = "";
+			String page = "";
+			while (line != null){
+				line = br.readLine();
+				page = page + line;
+			}
+			extractLinks(page);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 }
