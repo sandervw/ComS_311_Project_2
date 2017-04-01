@@ -4,6 +4,7 @@ public class GraphNode {
 	
 	private ArrayList<String> outConnections;
 	private String nodeValue;
+	private boolean visited = false;
 	
 	public GraphNode(String nodeValue){
 		
@@ -27,6 +28,18 @@ public class GraphNode {
 	protected void addConnection(String node){
 		
 		outConnections.add(node);
+		
+	}
+	
+	protected void setVisited(boolean bool){
+		
+		visited = bool;
+		
+	}
+	
+	protected boolean getVisited(){
+		
+		return visited;
 		
 	}
 
