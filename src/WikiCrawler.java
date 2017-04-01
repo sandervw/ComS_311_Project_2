@@ -3,6 +3,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.net.URL;
 import java.util.ArrayList;
 
@@ -39,6 +41,13 @@ public class WikiCrawler {
 	 */
 	public ArrayList<String> extractLinks(String doc){
 		
+		String pattern = "/wiki/(.[^#:]*?)\"";
+		Pattern r = Pattern.compile(pattern);
+		Matcher m = r.matcher(doc);
+		while(m.find()){
+			System.out.println(m.group(0));
+		}
+		
 		ArrayList<String> results = new ArrayList<String>();
 		return results;
 		//TODO
@@ -46,14 +55,19 @@ public class WikiCrawler {
 	}
 	
 	/*
-	 * This method should construct the web graph over following pages: Consider the rst
+	 * This method should construct the web graph over following pages: Consider the first
 	 * max many pages that are visited when you do a BFS with seedUrl. Your program should construct
-	 * the web graph only over those pages. and writes the graph to the le fileName.
+	 * the web graph only over those pages. and writes the graph to the file fileName.
 	 */
 	public void crawl(){
+		
 		URL url;
+		
 		try {
+			//create the base node url, based on the constructor
 			url = new URL(BASE_URL+seedURL);
+			
+			//create an input stream, and read every line of the page into a string
 			InputStream is = url.openStream();
 			BufferedReader br = new BufferedReader(new InputStreamReader(is));
 			String line = "";
@@ -62,7 +76,20 @@ public class WikiCrawler {
 				line = br.readLine();
 				page = page + line;
 			}
-			extractLinks(page);
+			
+			//Create a regex pattern to match everythign after the first <p> tag only
+			String pattern = "<p>(.*)";
+			Pattern r = Pattern.compile(pattern);
+			Matcher m = r.matcher(page);
+			//print the refined string
+			if(m.find()){
+				//System.out.println(m.group(0));
+				//System.out.println("\n");
+			}
+			else{
+				System.out.println("failed");
+			}
+			extractLinks(m.group(0));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
