@@ -57,7 +57,7 @@ public class GraphProcessor {
 
 		//Iterate through the while loop until the first node is found
 		int i=0;
-		while(SCCs.get(i).containsKey(u.hashCode())==false){
+		while(SCCs.get(i).containsKey(u.hashCode())==false && i<SCCs.size()-1){
 			i++;
 		}
 		//once the first node is found, if the SCC also contains the second node return true
@@ -75,9 +75,10 @@ public class GraphProcessor {
 
 		//Iterate through the while loop until the first node is found
 		int i=0;
-		while(SCCs.get(i).containsKey(v.hashCode())==false){
+		while(SCCs.get(i).containsKey(v.hashCode())==false  && i<SCCs.size()-1){
 			i++;
 		}
+		if(SCCs.get(i).containsKey(v.hashCode())==false) return new ArrayList<String>();
 		//Once the SCC is found, convert the map to a collection and add the values to an arraylist
 		Iterator<String> temp = SCCs.get(i).values().iterator();
 		ArrayList<String> results = new ArrayList<String>();
@@ -116,6 +117,8 @@ public class GraphProcessor {
 	 */
 	public ArrayList<String> bfsPath(String u, String v) {
 		
+		if(graph.get(u.hashCode()) == null) return new ArrayList<String>();
+		
 		//initialize arraylist of results to return
 		ArrayList<String> results = new ArrayList<String>();
 		
@@ -139,11 +142,15 @@ public class GraphProcessor {
 			treeNode = tempTree.get(tempString.hashCode());
 			//if v is found, add it to results and return
 			if(tempString.equals(v)){
+				ArrayList<String> tempResults = new ArrayList<String>();
 				while(treeNode.hasParent()){
-					results.add(treeNode.getData());
+					tempResults.add(treeNode.getData());
 					treeNode = treeNode.getParent();
 				}
-				results.add(treeNode.getData());
+				tempResults.add(treeNode.getData());
+				for(int i=tempResults.size()-1; i>=0; i--){
+					results.add(tempResults.get(i));
+				}
 				return results;
 			}
 			//convert the string to a node

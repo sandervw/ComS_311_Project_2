@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
@@ -97,7 +96,7 @@ public class WikiCrawler {
 		
 		PrintWriter out = null;
 		try {
-			out = new PrintWriter("WikiCS.txt");
+			out = new PrintWriter(fileName);
 			out.println(max);
 			for(int i = 0; i < edges.size(); i++){
 				out.println(edges.get(i));
