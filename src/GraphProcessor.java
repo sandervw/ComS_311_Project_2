@@ -1,7 +1,6 @@
 import java.io.*;
 import java.util.*;
 
-//http://www.geeksforgeeks.org/strongly-connected-components/
 
 /**
  * @author Sander VanWilligen
@@ -17,10 +16,12 @@ import java.util.*;
  */
 public class GraphProcessor {
 
-	private int numComponents = 0;
-	private int largestComponent = 0;
-	private Map<Integer, GraphNode> graph;
-	private ArrayList<ArrayList<String>> SCC;
+	private int numComponents = 0; //number of SCCs
+	private int largestComponent = 0; //size of the largest SCC
+	private Map<Integer, GraphNode> graph; //store the entire graph is a hashmap, to get constant access time
+	//store the SCCs in an arraylist of hashmaps
+	//Note that we do not store edges in these maps, since they are not needed for the methods specified
+	private ArrayList<HashMap<Integer, String>> SCCs; 				
 
 	/*
 	 * Contructor for the GraphProcessor class
@@ -28,8 +29,10 @@ public class GraphProcessor {
 	public GraphProcessor(String graphData) {
 
 		graph = new HashMap<Integer, GraphNode>();
-		SCC = new ArrayList<ArrayList<String>>();
+		SCCs = new ArrayList<HashMap<Integer, String>>();
+		//contruct a graph from the text file
 		constructGraph(graphData);
+		//create the SCCs using this method
 		this.getSCC();
 
 	}
@@ -39,7 +42,9 @@ public class GraphProcessor {
 	 */
 	public int outDegree(String v) {
 
+		//compute the hash value for the node
 		int hashValue = v.hashCode();
+		//get the number of out connections to the node
 		int degree = graph.get(hashValue).getConnections().size();
 		return degree;
 
@@ -50,8 +55,15 @@ public class GraphProcessor {
 	 */
 	public boolean sameComponent(String u, String v) {
 
-		// TODO
-		return true;
+		//Iterate through the while loop until the first node is found
+		int i=0;
+		while(SCCs.get(i).containsKey(u.hashCode())==false){
+			i++;
+		}
+		//once the first node is found, if the SCC also contains the second node return true
+		if(SCCs.get(i).containsKey(v.hashCode())) return true;
+		//else return false
+		return false;
 
 	}
 
@@ -61,8 +73,18 @@ public class GraphProcessor {
 	 */
 	public ArrayList<String> componentVertices(String v) {
 
-		// TODO
+		//Iterate through the while loop until the first node is found
+		int i=0;
+		while(SCCs.get(i).containsKey(v.hashCode())==false){
+			i++;
+		}
+		//Once the SCC is found, convert the map to a collection and add the values to an arraylist
+		Iterator<String> temp = SCCs.get(i).values().iterator();
 		ArrayList<String> results = new ArrayList<String>();
+		while(temp.hasNext()){
+			results.add(temp.next());
+		}
+		
 		return results;
 
 	}
@@ -93,10 +115,56 @@ public class GraphProcessor {
 	 * method returns an empty list.
 	 */
 	public ArrayList<String> bfsPath(String u, String v) {
-
-		// TODO
+		
+		//initialize arraylist of results to return
 		ArrayList<String> results = new ArrayList<String>();
-		return results;
+		
+		//Store the results in a tree temporarily to get the shortest path easily
+		//Store in hashmap for constant access time
+		HashMap<Integer, TreeNode> tempTree = new HashMap<Integer, TreeNode>();
+		TreeNode treeNode = new TreeNode(u);
+		tempTree.put(treeNode.getData().hashCode(), treeNode);
+		
+		//initialize Q and visited for BFS
+		//visited is stored in a hashmap to get constant search time
+		Stack<String> Q = new Stack<String>();
+		HashMap<Integer, String> visited = new HashMap<Integer, String>();
+		//add u to visited
+		Q.add(u);
+		visited.put(u.hashCode(), u);
+		//while Q is not empty
+		while(!Q.isEmpty()){
+			String tempString = Q.pop();
+			
+			treeNode = tempTree.get(tempString.hashCode());
+			//if v is found, add it to results and return
+			if(tempString.equals(v)){
+				while(treeNode.hasParent()){
+					results.add(treeNode.getData());
+					treeNode = treeNode.getParent();
+				}
+				results.add(treeNode.getData());
+				return results;
+			}
+			//convert the string to a node
+			int tempHash = tempString.hashCode();
+			GraphNode tempNode = graph.get(tempHash);
+			ArrayList<String> connections = tempNode.getConnections();
+			TreeNode child;
+			for(int i=0; i<connections.size(); i++){
+				if(!visited.containsKey(connections.get(i).hashCode())){
+					Q.add(connections.get(i));
+					visited.put(connections.get(i).hashCode(), connections.get(i));
+					//add the node to the tree
+					child = new TreeNode(connections.get(i));
+					child.addParent(treeNode);
+					tempTree.put(child.getData().hashCode(), child);
+				}
+			}
+		}
+		
+		//if no path from u to v was found, return empty array
+		return new ArrayList<String>();
 
 	}
 
@@ -120,7 +188,6 @@ public class GraphProcessor {
 			if (!graph.containsKey(key0)) {
 				GraphNode G = new GraphNode(splited[0]);
 				graph.put(key0, G);
-				numVertices++;
 			}
 			if (splited.length > 1) {
 				int key1 = splited[1].hashCode();
@@ -128,7 +195,6 @@ public class GraphProcessor {
 				if (!graph.containsKey(key1)) {
 					GraphNode G = new GraphNode(splited[1]);
 					graph.put(key1, G);
-					numVertices++;
 				}
 			}
 
@@ -139,12 +205,12 @@ public class GraphProcessor {
 
 	// a recursive function to print a DFS search starting from the specified
 	// node
-	private void DFSUtil(String v, Map<Integer, GraphNode> dfsGraph, ArrayList<String> results) {
+	private void DFSUtil(String v, Map<Integer, GraphNode> dfsGraph, HashMap<Integer, String> results) {
 		
 		// Mark the current node as visited and print it
 		int hashValue = v.hashCode();
 		dfsGraph.get(hashValue).setVisited(true);
-		results.add(v);
+		results.put(v.hashCode(), v);
 
 		String n;
 
@@ -192,7 +258,7 @@ public class GraphProcessor {
 	}
 
 	//fill the specified stack from the root note v
-	private void fillOrder(String v, Stack stack) {
+	private void fillOrder(String v, Stack<GraphNode> stack) {
 
 		// Mark the current node as visited and print it
 		int hashValue = v.hashCode();
@@ -216,7 +282,7 @@ public class GraphProcessor {
 	
 	private void getSCC(){
 		
-		Stack stack = new Stack();
+		Stack<GraphNode> stack = new Stack<GraphNode>();
 		
 		//Mark all vertices as not visited
 		Iterator<GraphNode> g = graph.values().iterator();
@@ -246,7 +312,7 @@ public class GraphProcessor {
 			
 		}
 		
-		ArrayList<String> results;
+		HashMap<Integer, String> results;
 		
 		//now process all vertices in order defined by stack
 		while(stack.empty() == false){
@@ -254,12 +320,11 @@ public class GraphProcessor {
 			GraphNode temp = (GraphNode)stack.pop();
 			int hashValue = temp.getNode().hashCode();
 			if(graphT.get(hashValue).getVisited() == false){
-				results = new ArrayList<String>();
+				results = new HashMap<Integer, String>();
 				DFSUtil(temp.getNode(), graphT, results);
 				if(results.size()>this.largestComponent) largestComponent = results.size();
-				SCC.add(results);
+				SCCs.add(results);
 				numComponents++;
-				System.out.println();
 			}
 			
 		}
