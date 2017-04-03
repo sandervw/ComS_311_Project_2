@@ -1,3 +1,8 @@
+/**
+ * @author Sander VanWilligen
+ * @author Zackery Lovisa
+ */
+
 import java.util.ArrayList;
 
 public class GraphNode {

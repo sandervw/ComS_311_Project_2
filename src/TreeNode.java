@@ -1,3 +1,8 @@
+/**
+ * @author Sander VanWilligen
+ * @author Zackery Lovisa
+ */
+
 public class TreeNode {
 
     private String data;
