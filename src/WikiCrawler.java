@@ -1,20 +1,19 @@
+/**
+ * @author Sander VanWilligen
+ * @author Zackery Lovisa
+ */
+
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-/**
- * @author Sander VanWilligen
- * @author Zackery Lovisa
- */
 
 /*
  * This class will have methods that can be used to crawl Wiki
@@ -74,7 +73,10 @@ public class WikiCrawler {
 		ArrayList<String> nodes = new ArrayList<String>();
 		ArrayList<String> edges = new ArrayList<String>();
 		
+		
 		nodes.add(seedURL);
+		
+		ArrayList<String> temp;
 
 		//Navigate the continuously appended list of links.
 		for (int i = 0; i < nodes.size(); i++) {
@@ -83,7 +85,8 @@ public class WikiCrawler {
 			m = r.matcher(getHTML(url));
 			m.find();
 			//Extract all the links for the new page
-			ArrayList<String> temp = extractLinks(m.group(0));
+			temp = extractLinks(m.group(0));
+			String link;
 			//Navigate those links
 			for (int j = 0; j < temp.size(); j++) {
 				
@@ -125,8 +128,10 @@ public class WikiCrawler {
 			
 			//Timeout for 3 seconds after every 100 requests.
 			connections++;
-			if(connections >= 100){
+			if(connections >= 99){
 				TimeUnit.SECONDS.sleep(3);
+				System.out.println("Waited 3 seconds after " + (connections+1) + " connections.");
+				connections = 0;
 			}
 			
 			BufferedReader br = new BufferedReader(new InputStreamReader(is));
