@@ -123,6 +123,7 @@ public class WikiCrawler {
 			connections++;
 			if(connections >= 99){
 				TimeUnit.SECONDS.sleep(3);
+				System.out.println("Waited 3 seconds after " + (connections+1) + " connections.");
 				connections = 0;
 			}
 			BufferedReader br = new BufferedReader(new InputStreamReader(is));

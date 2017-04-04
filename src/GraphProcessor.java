@@ -23,7 +23,7 @@ public class GraphProcessor {
 
 	private int numComponents = 0; //number of SCCs
 	private int largestComponent = 0; //size of the largest SCC
-	private Map<Integer, GraphNode> graph; //store the entire graph is a hashmap, to get constant access time
+	public Map<Integer, GraphNode> graph; //store the entire graph is a hashmap, to get constant access time
 	//store the SCCs in an arraylist of hashmaps
 	//Note that we do not store edges in these maps, since they are not needed for the methods specified
 	private ArrayList<HashMap<Integer, String>> SCCs; 				
