@@ -26,11 +26,11 @@ public class WikiCrawler {
 	private String seedURL; //relative address of the seed URL within the wiki domain.
 	private int max; //maximum number of pages to be crawled.
 	private String fileName; //name of the file the graph will be written to.
-	private int connections = 0;
+	private int connections = 0; //Number of connections made to Wikipedia since the last 3:00 wait.
+	
 	/*
 	 * Constructor for the WikiCrawler Class
 	 */
-
 	public WikiCrawler(String seedURL, int max, String fileName) {
 		this.seedURL = seedURL;
 		this.max = max;
@@ -46,10 +46,12 @@ public class WikiCrawler {
 	public ArrayList<String> extractLinks(String doc) {
 
 		ArrayList<String> results = new ArrayList<String>();
+		//Look for ' href="/wiki/Something" '
 		String pattern = "href=\"\\/wiki\\/(.[^#:]*?)\"";
 		Pattern r = Pattern.compile(pattern);
 		Matcher m = r.matcher(doc);
 		while (m.find()) {
+			//Cut out the directory path and re-add the /wiki/ part. (this should always be a /wiki/ link)
 			results.add("/wiki/" + m.group(1));
 		}
 
@@ -63,10 +65,12 @@ public class WikiCrawler {
 	 */
 	public void crawl() {
 		//Create a regex pattern to match everything after the first <p> tag only
-		String pattern = "<p>(.*)";
-		Pattern r = Pattern.compile(pattern);
-		String url = BASE_URL + seedURL;
+		String  pattern = "<p>(.*)";
+		Pattern r       = Pattern.compile(pattern);
+		String  url     = BASE_URL + seedURL;
 		Matcher m;
+		String  link;
+		
 		ArrayList<String> nodes = new ArrayList<String>();
 		ArrayList<String> edges = new ArrayList<String>();
 		
@@ -83,7 +87,7 @@ public class WikiCrawler {
 			//Navigate those links
 			for (int j = 0; j < temp.size(); j++) {
 				
-				String link = temp.get(j);
+				link = temp.get(j);
 				if (!seedURL.equals(link)) {
 					//Add all the new links to Nodes (If we haven't hit the max)
 					if (!nodes.contains(link) && nodes.size() < max)
@@ -95,9 +99,11 @@ public class WikiCrawler {
 			}
 		}
 		
+		//Print the edges to a result file, specified in the constructor.
 		PrintWriter out = null;
+		
 		try {
-			out = new PrintWriter("WikiCS.txt");
+			out = new PrintWriter(fileName);
 			out.println(max);
 			for(int i = 0; i < edges.size(); i++){
 				out.println(edges.get(i));
@@ -116,18 +122,22 @@ public class WikiCrawler {
 
 			//create an input stream, and read every line of the page into a string
 			InputStream is = url.openStream();
+			
 			//Timeout for 3 seconds after every 100 requests.
 			connections++;
 			if(connections >= 100){
 				TimeUnit.SECONDS.sleep(3);
 			}
+			
 			BufferedReader br = new BufferedReader(new InputStreamReader(is));
 			String line = "";
 			String page = "";
+			
 			while (line != null) {
 				line = br.readLine();
 				page = page + line;
 			}
+			
 			return page;
 
 		} catch (IOException | InterruptedException e) {
